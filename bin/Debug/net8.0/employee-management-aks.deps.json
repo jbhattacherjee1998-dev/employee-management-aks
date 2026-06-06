@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "employee-management-aks/1.0.0": {
+        "runtime": {
+          "employee-management-aks.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "employee-management-aks/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
