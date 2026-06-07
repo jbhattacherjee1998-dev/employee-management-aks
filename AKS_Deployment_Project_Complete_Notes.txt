@@ -1,0 +1,694 @@
+# AKS DEPLOYMENT PROJECT - COMPLETE STUDY NOTES
+
+## PROJECT NAME
+
+Employee Management API Deployment on Azure Kubernetes Service (AKS)
+
+## PROJECT OBJECTIVE
+
+Deploy a .NET Web API application to Azure Kubernetes Service using Docker, Azure Container Registry (ACR), and Kubernetes manifests.
+
+This project demonstrates:
+
+1. .NET Development
+2. Docker Containerization
+3. Azure Cloud
+4. Kubernetes Orchestration
+5. AKS Deployment
+6. Azure DevOps Readiness
+7. CI/CD Concepts
+
+========================================================
+SECTION 1 : PREREQUISITES
+=========================
+
+1. VISUAL STUDIO CODE (VS CODE)
+
+---
+
+Purpose:
+
+* Code Editor
+* Terminal Access
+* Source Control Integration
+* Docker Extension Support
+* Kubernetes Extension Support
+
+Download:
+https://code.visualstudio.com
+
+Recommended Extensions:
+
+1. C#
+2. Docker
+3. Kubernetes
+4. Azure Tools
+5. YAML
+6. GitHub Pull Requests
+
+---
+
+2. GIT
+
+---
+
+Purpose:
+
+* Version Control
+* Source Code Management
+* Push Code to GitHub
+
+Verify Installation:
+
+git --version
+
+Expected Output:
+
+git version 2.x.x
+
+---
+
+3. .NET SDK
+
+---
+
+Purpose:
+
+* Build .NET Applications
+* Run Web APIs
+* Restore Packages
+
+Verify:
+
+dotnet --version
+
+Example:
+
+8.0.100
+
+---
+
+4. DOCKER DESKTOP
+
+---
+
+Purpose:
+
+* Build Images
+* Run Containers
+* Kubernetes Local Cluster (Optional)
+
+Verify:
+
+docker --version
+
+Example:
+
+Docker version 28.x.x
+
+---
+
+5. AZURE SUBSCRIPTION
+
+---
+
+Purpose:
+
+* Create Cloud Resources
+* AKS Cluster
+* Azure Container Registry
+* Resource Groups
+
+Types:
+
+1. Free Trial
+2. Pay-As-You-Go
+3. Student Subscription
+
+---
+
+6. AZURE CLI
+
+---
+
+Purpose:
+Manage Azure using terminal.
+
+Verify:
+
+az --version
+
+---
+
+7. KUBECTL
+
+---
+
+Purpose:
+Manage Kubernetes Clusters
+
+Verify:
+
+kubectl version --client
+
+========================================================
+SECTION 2 : PROJECT FLOW
+========================
+
+.NET Web API
+|
+v
+Docker Image
+|
+v
+Azure Container Registry
+|
+v
+AKS Cluster
+|
+v
+Kubernetes Deployment
+|
+v
+Service (LoadBalancer)
+|
+v
+Public Endpoint
+
+========================================================
+SECTION 3 : PROJECT FOLDER STRUCTURE
+====================================
+
+employee-management-aks/
+
+│
+├── Controllers/
+│   └── EmployeeController.cs
+│
+├── Properties/
+│
+├── appsettings.json
+├── appsettings.Development.json
+│
+├── Program.cs
+│
+├── employee-management-aks.csproj
+│
+├── Dockerfile
+│
+├── .gitignore
+│
+├── README.md
+│
+├── k8s/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── configmap.yaml
+│   └── secret.yaml
+│
+├── screenshots/
+│   ├── architecture.png
+│   ├── docker-build.png
+│   ├── pods.png
+│   ├── service.png
+│   └── aks-cluster.png
+│
+└── docs/
+└── project-notes.txt
+
+========================================================
+SECTION 4 : FILE PURPOSE EXPLANATION
+====================================
+
+## Program.cs
+
+Purpose:
+Application Startup File
+
+Example:
+
+var builder = WebApplication.CreateBuilder(args);
+
+Meaning:
+Creates application builder object.
+
+---
+
+builder.Services.AddControllers();
+
+Meaning:
+Registers Controllers.
+
+---
+
+var app = builder.Build();
+
+Meaning:
+Creates Application Instance.
+
+---
+
+app.MapControllers();
+
+Meaning:
+Maps API Endpoints.
+
+---
+
+app.Run();
+
+Meaning:
+Starts Application.
+
+========================================================
+
+## EmployeeController.cs
+
+Purpose:
+Creates REST API Endpoint
+
+Example:
+
+[ApiController]
+
+Meaning:
+Marks class as API Controller.
+
+---
+
+[Route("api/[controller]")]
+
+Meaning:
+Route becomes:
+
+api/employee
+
+---
+
+[HttpGet]
+
+Meaning:
+Respond to GET Request.
+
+---
+
+return Ok(...)
+
+Meaning:
+Returns HTTP Status 200.
+
+========================================================
+
+## appsettings.json
+
+Purpose:
+Store Configuration Values
+
+Examples:
+
+Connection Strings
+
+API URLs
+
+Environment Settings
+
+========================================================
+
+## Dockerfile
+
+Purpose:
+Containerize Application
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+Meaning:
+Use .NET SDK image.
+
+---
+
+WORKDIR /src
+
+Meaning:
+Set working directory.
+
+---
+
+COPY . .
+
+Meaning:
+Copy source code.
+
+---
+
+RUN dotnet restore
+
+Meaning:
+Download dependencies.
+
+---
+
+RUN dotnet publish -c Release -o /app/publish
+
+Meaning:
+Build application.
+
+---
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+Meaning:
+Runtime Image.
+
+---
+
+COPY --from=build /app/publish .
+
+Meaning:
+Copy published files.
+
+---
+
+ENTRYPOINT ["dotnet","employee-management-aks.dll"]
+
+Meaning:
+Application Startup Command.
+
+========================================================
+SECTION 5 : DOCKER COMMANDS
+===========================
+
+Build Image:
+
+docker build -t employee-api:v1 .
+
+Meaning:
+
+-t
+Tag
+
+employee-api
+Image Name
+
+v1
+Version
+
+.
+Current Directory
+
+---
+
+List Images:
+
+docker images
+
+---
+
+Run Container:
+
+docker run -p 8080:80 employee-api:v1
+
+Meaning:
+
+8080
+Local Port
+
+80
+Container Port
+
+========================================================
+SECTION 6 : AZURE COMMANDS
+==========================
+
+Login:
+
+az login
+
+Purpose:
+Authenticate Azure Account
+
+---
+
+Check Subscription:
+
+az account show
+
+Purpose:
+Display Current Subscription
+
+---
+
+Create Resource Group:
+
+az group create 
+--name aks-dev-rg 
+--location centralindia
+
+Meaning:
+
+aks-dev-rg
+Resource Group Name
+
+centralindia
+Azure Region
+
+========================================================
+SECTION 7 : ACR (AZURE CONTAINER REGISTRY)
+==========================================
+
+Create Registry:
+
+az acr create 
+--resource-group aks-dev-rg 
+--name myacr123 
+--sku Basic
+
+Purpose:
+Store Docker Images
+
+---
+
+Login:
+
+az acr login --name myacr123
+
+---
+
+Tag Image:
+
+docker tag employee-api:v1 myacr123.azurecr.io/employee-api:v1
+
+Meaning:
+
+Source Image
+Destination Image
+
+---
+
+Push Image:
+
+docker push myacr123.azurecr.io/employee-api:v1
+
+Purpose:
+Upload Image to ACR
+
+========================================================
+SECTION 8 : AKS COMMANDS
+========================
+
+Create Cluster:
+
+az aks create 
+--resource-group aks-dev-rg 
+--name dev-aks-cluster 
+--node-count 1 
+--generate-ssh-keys
+
+Meaning:
+
+node-count 1
+
+One Worker Node
+
+---
+
+Connect Cluster:
+
+az aks get-credentials 
+--resource-group aks-dev-rg 
+--name dev-aks-cluster
+
+Purpose:
+Connect kubectl to AKS
+
+---
+
+Verify:
+
+kubectl config current-context
+
+========================================================
+SECTION 9 : KUBERNETES YAML FILES
+=================================
+
+## deployment.yaml
+
+Purpose:
+Deploy Pods
+
+Important Fields:
+
+apiVersion: apps/v1
+
+Kubernetes API Version
+
+---
+
+kind: Deployment
+
+Object Type
+
+---
+
+replicas: 2
+
+Maintain 2 Pods
+
+---
+
+image:
+
+Docker Image Location
+
+---
+
+containerPort: 80
+
+Application Port
+
+========================================================
+
+## service.yaml
+
+Purpose:
+Expose Application
+
+kind: Service
+
+Creates Service
+
+---
+
+type: LoadBalancer
+
+Creates Public Endpoint
+
+---
+
+selector:
+
+Connect Service to Pods
+
+========================================================
+SECTION 10 : KUBECTL COMMANDS
+=============================
+
+Deploy:
+
+kubectl apply -f k8s/deployment.yaml
+
+Purpose:
+Create Deployment
+
+---
+
+Create Service:
+
+kubectl apply -f k8s/service.yaml
+
+---
+
+View Pods:
+
+kubectl get pods
+
+---
+
+View Services:
+
+kubectl get svc
+
+---
+
+View Nodes:
+
+kubectl get nodes
+
+---
+
+View Logs:
+
+kubectl logs pod-name
+
+========================================================
+SECTION 11 : WHAT TO PUSH TO GITHUB
+===================================
+
+PUSH THESE FILES:
+
+Program.cs
+
+Controllers/
+
+appsettings.json
+
+Dockerfile
+
+README.md
+
+.gitignore
+
+k8s/
+
+screenshots/
+
+========================================================
+
+DO NOT PUSH:
+
+bin/
+
+obj/
+
+.vs/
+
+user secrets
+
+========================================================
+SECTION 12 : SCREENSHOTS TO ADD
+===============================
+
+1. Application Running
+
+2. Docker Build Success
+
+3. Docker Images
+
+4. Docker Container Running
+
+5. Azure Container Registry
+
+6. AKS Cluster
+
+7. kubectl get pods
+
+8. kubectl get svc
+
+9. Azure Portal Dashboard
+
+10. Architecture Diagram
+
+========================================================
+SECTION 13 : RESUME DESCRIPTION
+===============================
+
+Built and deployed a containerized .NET 8 Web API on Azure Kubernetes Service (AKS). Implemented Docker-based containerization, Azure Container Registry integration, Kubernetes Deployments and LoadBalancer Services. Demonstrated cloud-native application deployment, container orchestration, scaling, and lifecycle management using Azure and Kubernetes.
